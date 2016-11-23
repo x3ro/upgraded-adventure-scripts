@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+require 'tempfile'
+
+yasm_available = `which yasm`
+if $?.exitstatus != 0
+  puts "Please install yasm"
+  exit 1
+end
+
+passed_code = ""
+if ARGV.length != 0
+  passed_code = ARGV.join(" ")
+end
+
+code = "BITS 64\n"
+
+if passed_code.length > 0
+  code += passed_code
+else
+  puts "Please enter some assembly (NASM/Intel syntax) and press Ctrl-D to finish"
+  puts "\n01    BITS 64"
+  line = 1
+  begin
+    line += 1
+    $stdout.write "%02d    " % line
+    $stdout.flush
+    code += $stdin.readline
+  end while !$stdin.eof?
+end
+
+outfile = Tempfile.new('assemble-out')
+infile = Tempfile.new('assemble-in')
+infile.write(code)
+infile.flush
+
+output = `yasm -f bin -o #{outfile.path} #{infile.path} 2>&1`
+if $?.exitstatus != 0
+  puts output.gsub("#{infile.path}:", 'line ')
+  exit 1
+end
+
+puts "\n\nHex:"
+puts `hexdump #{outfile.path}`
