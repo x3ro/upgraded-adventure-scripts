@@ -18,12 +18,8 @@ if passed_code.length > 0
   code += passed_code
 else
   puts "Please enter some assembly (NASM/Intel syntax) and press Ctrl-D to finish"
-  puts "\n01    BITS 64"
-  line = 1
+  puts "\nBITS 64"
   begin
-    line += 1
-    $stdout.write "%02d    " % line
-    $stdout.flush
     code += $stdin.readline
   end while !$stdin.eof?
 end
